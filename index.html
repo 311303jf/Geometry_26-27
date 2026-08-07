@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topic I · Basics of Geometry</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root{
+  --petrol: #1B6B73;
+  --petrol-dark: #123F45;
+  --petrol-tint: #E4F0F1;
+  --yellow: #F5C518;
+  --yellow-soft: #FDF3D0;
+  --ink: #17242A;
+  --paper: #FAF8F3;
+  --card: #FFFFFF;
+  --muted: #62747A;
+  --line: #DDE3E1;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Space Grotesk',sans-serif;line-height:1.5;padding:0 0 60px;}
+.wrap{max-width:980px;margin:0 auto;padding:0 24px;}
+
+.masthead{background:linear-gradient(135deg, var(--petrol-dark), var(--petrol));color:#fff;padding:36px 0 26px;position:relative;overflow:hidden;}
+.masthead::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle, rgba(245,197,24,0.28), transparent 70%);}
+.masthead-top{display:flex;justify-content:space-between;align-items:center;gap:12px;position:relative;z-index:2;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--yellow);margin:0;}
+.header-controls{display:flex;gap:10px;align-items:center;}
+
+.lang-select{
+  background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;
+  padding:5px 10px;border-radius:20px;font-size:12px;font-family:'IBM Plex Mono',monospace;
+  cursor:pointer;outline:none;
+}
+.lang-select option{background:var(--petrol-dark);color:#fff;}
+
+.admin-toggle-btn{
+  background:rgba(245,197,24,0.15);border:1px solid var(--yellow);color:var(--yellow);
+  padding:6px 14px;border-radius:20px;font-size:12px;font-family:'IBM Plex Mono',monospace;
+  cursor:pointer;transition:all 0.2s ease;white-space:nowrap;
+}
+.admin-toggle-btn:hover,.admin-toggle-btn.active{background:var(--yellow);color:var(--petrol-dark);font-weight:600;}
+
+.masthead h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,40px);margin:12px 0 8px;letter-spacing:-0.01em;}
+.masthead .eq{font-size:14.5px;color:#DCEDEE;max-width:680px;border-left:2px solid var(--yellow);padding-left:12px;margin-top:12px;}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;position:relative;z-index:1;}
+.meta-chip{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);padding:6px 12px;border-radius:20px;font-size:12.5px;font-family:'IBM Plex Mono',monospace;}
+.meta-chip b{color:var(--yellow);font-weight:600;}
+
+.topic-links{margin-top:24px;padding-top:34px;}
+.topic-resource-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;}
+
+.block-head{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;}
+.block-head .num{font-family:'IBM Plex Mono',monospace;color:var(--petrol);font-size:13px;font-weight:500;}
+.block-head h2{font-family:'Fraunces',serif;font-weight:600;font-size:20px;margin:0;color:var(--petrol-dark);}
+
+.tabbar{position:sticky;top:0;background:var(--paper);z-index:10;padding:18px 0 10px;border-bottom:1px solid var(--line);margin-top:10px;}
+.tabbar-inner{display:flex;gap:6px;flex-wrap:wrap;}
+.tab-btn{
+  font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500;
+  background:var(--card);border:1px solid var(--line);color:var(--muted);
+  padding:8px 14px;border-radius:8px 8px 0 0;cursor:pointer;
+}
+.tab-btn.active{background:var(--petrol);color:#fff;border-color:var(--petrol);}
+.tab-btn:hover:not(.active){border-color:var(--petrol);color:var(--petrol-dark);}
+
+.panel{display:none;padding-top:28px;}
+.panel.active{display:block;}
+.panel-title{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px;}
+.panel-title h2{font-family:'Fraunces',serif;font-weight:600;font-size:26px;margin:0;color:var(--petrol-dark);}
+
+.objectives{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--yellow);border-radius:10px;padding:18px 20px;}
+.objectives ul{margin:0;padding-left:20px;}
+.objectives li{margin-bottom:5px;}
+.standard-tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--petrol-tint);color:var(--petrol-dark);padding:3px 9px;border-radius:6px;margin-right:6px;margin-bottom:8px;}
+
+.vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;}
+.vocab-pill{background:var(--petrol-tint);color:var(--petrol-dark);border-radius:8px;padding:8px 12px;font-size:13px;font-weight:500;border:1px solid #CFE3E4;}
+
+.flow{border-left:3px solid var(--petrol-tint);margin-left:10px;}
+.flow-step{position:relative;padding:0 0 22px 30px;}
+.flow-step:last-child{padding-bottom:4px;}
+.flow-step::before{content:"";position:absolute;left:-9px;top:4px;width:15px;height:15px;border-radius:50%;background:var(--yellow);border:3px solid var(--petrol-dark);}
+.flow-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:15px 18px;}
+.flow-card-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:7px;}
+.flow-card-head h3{font-family:'Fraunces',serif;font-size:16.5px;margin:0;color:var(--ink);}
+.time-tag{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--petrol);color:#fff;padding:3px 10px;border-radius:20px;white-space:nowrap;}
+.flow-card p,.flow-card ul{font-size:13.5px;color:#3B4A50;}
+.flow-card ul{margin:6px 0;padding-left:18px;}
+
+.notes-box{background:var(--petrol-tint);border-radius:10px;padding:16px 20px;font-size:13.5px;color:var(--petrol-dark);}
+
+table.dok{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--card);border-radius:10px;overflow:hidden;border:1px solid var(--line);}
+table.dok th{background:var(--petrol-dark);color:#fff;text-align:left;padding:9px 14px;font-weight:600;}
+table.dok td{padding:9px 14px;border-top:1px solid var(--line);}
+table.dok tr:nth-child(even) td{background:#F7F9F8;}
+
+.resource-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:640px){.resource-grid{grid-template-columns:1fr;}}
+.resource-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;}
+.resource-card h4{margin:0 0 3px;font-size:14px;font-family:'Fraunces',serif;}
+.resource-card .desc{font-size:12px;color:var(--muted);margin-bottom:8px;}
+
+section.block{margin-top:26px;}
+
+.link-box{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);}
+.link-label{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;}
+.link-count{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--petrol);background:var(--petrol-tint);border-radius:10px;padding:1px 7px;margin-left:6px;}
+.saved-links{display:flex;flex-direction:column;gap:5px;margin-bottom:8px;}
+.saved-link{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--yellow-soft);border:1px solid #EBD98A;border-radius:7px;padding:6px 11px;font-size:12.5px;}
+.saved-link a{color:var(--petrol-dark);font-weight:600;text-decoration:none;word-break:break-all;}
+.saved-link a:hover{text-decoration:underline;}
+.saved-link .remove{background:none;border:none;color:var(--muted);font-size:11.5px;cursor:pointer;text-decoration:underline;font-family:'Space Grotesk',sans-serif;flex-shrink:0;}
+.saved-link .remove:hover{color:#B3413C;}
+.attach-row{display:none;gap:8px;flex-wrap:wrap;}
+body.admin-mode .attach-row{display:flex;}
+body.admin-mode .saved-link .remove{display:inline-block;}
+body:not(.admin-mode) .saved-link .remove{display:none;}
+
+.attach-row input[type=text]{flex:1;min-width:160px;border:1px solid var(--line);border-radius:7px;padding:7px 10px;font-family:'Space Grotesk',sans-serif;font-size:12.5px;background:#fff;}
+.attach-row input[type=text]:focus{outline:2px solid var(--petrol);outline-offset:1px;}
+.attach-row button{background:var(--petrol);color:#fff;border:none;border-radius:7px;padding:7px 13px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'Space Grotesk',sans-serif;}
+.attach-row button:hover{background:var(--petrol-dark);}
+
+.day-field{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--petrol-tint);color:var(--petrol-dark);border:1px solid #CFE3E4;
+  border-radius:20px;padding:4px 6px 4px 12px;font-size:12.5px;font-family:'IBM Plex Mono',monospace;
+}
+.day-field input{
+  border:none;background:transparent;color:var(--petrol-dark);font-weight:600;
+  font-family:'IBM Plex Mono',monospace;font-size:12.5px;padding:3px 4px;
+  border-bottom:1px dashed transparent;min-width:60px;
+}
+body:not(.admin-mode) .day-field input{pointer-events:none;border-bottom:none;}
+body:not(.admin-mode) .day-field .edit-hint{display:none;}
+.day-field input:hover{border-bottom-color:var(--muted);}
+.day-field input:focus{outline:none;border-bottom-color:var(--petrol);}
+.day-field .edit-hint{font-size:10px;color:var(--muted);}
+
+footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="wrap">
+    <div class="masthead-top">
+      <p class="eyebrow" id="eyebrow">M-DCPS · Geometry · Course 1206310</p>
+      <div class="header-controls">
+        <select class="lang-select" id="langSelect" onchange="changeLanguage(this.value)">
+          <option value="en" selected>🌐 English</option>
+          <option value="es">🌐 Español</option>
+        </select>
+        <button class="admin-toggle-btn" id="adminBtn" onclick="toggleAdmin()">🔒 Admin Mode</button>
+      </div>
+    </div>
+    <h1 id="main-title">Topic I — Basics of Geometry</h1>
+    <p class="eq" id="essential-question">"How do definitions, postulates, and theorems work together to help us reason, measure, and justify relationships in geometry?"</p>
+    <div class="meta-row">
+      <span class="meta-chip"><span id="lbl-pacing">Pacing</span> <b>08/13/2026 – 09/27/2026</b></span>
+      <span class="meta-chip" id="days-chip">11 Traditional Days / 5 Block Days</span>
+      <span class="meta-chip"><span id="lbl-test">Topics I &amp; II Test</span> <b>09/14–09/22/26</b></span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <section class="block topic-links">
+    <div class="block-head"><span class="num">◆</span><h2 id="general-resources-title">General Topic Resources</h2></div>
+    <div class="topic-resource-grid" id="topic-resources"></div>
+  </section>
+</div>
+
+<div class="tabbar">
+  <div class="wrap tabbar-inner" id="tabbar"></div>
+</div>
+
+<div class="wrap" id="panels"></div>
+
+<div class="wrap"><footer>
+  <span>Geometry OS · Mr. Figueredo</span>
+  <span id="status-footer">Student Mode (Read-only)</span>
+</footer></div>
+
+<script>
+const ADMIN_PIN = "9006@";
+let isAdmin = false;
+let currentLang = 'en';
+
+// Almacenamiento seguro en memoria
+const memoryStorage = {};
+
+const store = {
+  get(key) {
+    return memoryStorage[key] ? { value: memoryStorage[key] } : null;
+  },
+  set(key, value) {
+    memoryStorage[key] = value;
+  }
+};
+
+const I18N = {
+  en: {
+    eyebrow: "M-DCPS · Geometry · Course 1206310",
+    mainTitle: "Topic I — Basics of Geometry",
+    lblPacing: "Pacing",
+    lblTest: "Topics I & II Test",
+    adminBtnLocked: "🔒 Admin Mode",
+    adminBtnUnlocked: "🔓 Admin Mode (Active)",
+    statusProtected: "Student Mode (Read-only)",
+    statusActive: "Admin Mode Active",
+    promptPin: "Enter Admin PIN to edit:",
+    wrongPin: "Incorrect PIN. Access denied.",
+    exitAdmin: "You have exited edit mode.",
+    eq: '"How do definitions, postulates, and theorems work together to help us reason, measure, and justify relationships in geometry?"',
+    daysChip: "11 Traditional Days / 5 Block Days",
+    genResourcesTitle: "General Topic Resources",
+    secVocab: "Vocabulary",
+    secFlow: "Lesson Sequence",
+    secNotes: "Standard Notes",
+    secDok: "DOK Distribution",
+    secResources: "Resources & Assessment",
+    lblAttached: "Attached Resources",
+    placeholderLink: "Paste resource link…",
+    btnAdd: "Add",
+    btnRemove: "remove",
+    dokLevel: "Level",
+    dokProblems: "Suggested Problems",
+    prereqLabel: "Prerequisite",
+    pmTestIdLabel: "PM Test ID",
+    tabReview: "Review",
+    lessonWord: "Lesson"
+  },
+  es: {
+    eyebrow: "M-DCPS · Geometría · Curso 1206310",
+    mainTitle: "Tema I — Fundamentos de Geometría",
+    lblPacing: "Cronograma",
+    lblTest: "Examen Temas I y II",
+    adminBtnLocked: "🔒 Modo Admin",
+    adminBtnUnlocked: "🔓 Modo Admin (Activo)",
+    statusProtected: "Modo Estudiante (Solo lectura)",
+    statusActive: "Modo Administrador Activo",
+    promptPin: "Introduce el PIN de Administrador:",
+    wrongPin: "PIN Incorrecto. Acceso denegado.",
+    exitAdmin: "Has salido del modo edición.",
+    eq: '"¿Cómo funcionan juntos las definiciones, postulados y teoremas para ayudarnos a razonar, medir y justificar relaciones en geometría?"',
+    daysChip: "11 días tradicionales / 5 días de bloque",
+    genResourcesTitle: "Recursos Generales del Tema",
+    secVocab: "Vocabulario",
+    secFlow: "Secuencia de la Lección",
+    secNotes: "Notas del Estándar",
+    secDok: "Distribución DOK",
+    secResources: "Recursos y Evaluación",
+    lblAttached: "Recursos Adjuntos",
+    placeholderLink: "Pega el enlace del recurso…",
+    btnAdd: "Agregar",
+    btnRemove: "quitar",
+    dokLevel: "Nivel",
+    dokProblems: "Problemas Sugeridos",
+    prereqLabel: "Prerrequisito",
+    pmTestIdLabel: "ID de Prueba PM",
+    tabReview: "Repaso",
+    lessonWord: "Lección"
+  }
+};
+
+const TOPIC_RESOURCES = [
+  {key:'fldoe-b1gm', title:'FLDOE Geometry B1G-M', desc:{en:'With differentiated instruction', es:'Con instrucción diferenciada'}},
+  {key:'best-standards', title:"Florida's B.E.S.T. Standards", desc:{en:'Math – Geometry', es:'Matemáticas – Geometría'}},
+  {key:'year-glance', title:'Geometry Year-at-a-Glance', desc:{en:'Annual course overview', es:'Vista general del curso'}},
+  {key:'access-geo', title:'Access Geometry', desc:{en:'ESE Support', es:'Apoyo ESE'}},
+  {key:'gifted-support', title:'Gifted and Acceleration Support', desc:{en:'Differentiation / Enrichment', es:'Diferenciación / Enriquecimiento'}},
+  {key:'esol-support', title:'Essential Practices ESOL K–12', desc:{en:'ESOL Support', es:'Apoyo ESOL'}}
+];
+
+const LESSONS = [
+  {
+    id:'l11', tab:'1.1',
+    title:{en:'Points, Lines, and Planes', es:'Puntos, Líneas y Planos'},
+    dayLabel:{en:'Day 1', es:'Día 1'}, date:'08/13/2026', standards:['MA.912.GR.5.1'], prereq:'MA.3.GR.1.1', pmTestId:'3869809',
+    objectives:{
+      en:['Describe a point, line, and plane.','Define and name segments and rays.','Draw intersections of lines and planes.'],
+      es:['Describir un punto, una línea y un plano.','Definir y nombrar segmentos y rayos.','Dibujar intersecciones de líneas y planos.']
+    },
+    vocab:['Point / Punto','Line / Línea','Plane / Plano','Line segment / Segmento','Ray / Rayo','Collinear / Colineal','Coplanar / Coplanar','Intersection / Intersección'],
+    flow:[
+      {key:'explore', name:{en:'Explore It!', es:'¡Explóralo!'}, time:'5–10 min', desc:{en:'Warm-Up to activate prior knowledge before introducing undefined terms.', es:'Calentamiento para activar conocimientos previos antes de introducir términos indefinidos.'}},
+      {key:'teach-undefined', name:{en:'Teach It! — Undefined Terms', es:'¡Enséñalo! — Términos indefinidos'}, time:'20–25 min', desc:{en:'Example 1: Point, line, and plane.', es:'Ejemplo 1: Punto, línea y plano.'}, bullets:{en:['Your Turn: 1–2'], es:['Tu turno: 1–2']}},
+      {key:'teach-defined', name:{en:'Teach It! — Defined Terms', es:'¡Enséñalo! — Términos definidos'}, time:'incl.', desc:{en:'Example 2: Segments and rays.', es:'Ejemplo 2: Segmentos y rayos.'}, bullets:{en:['Your Turn: 3–4'], es:['Tu turno: 3–4']}},
+      {key:'own-it', name:{en:'Own It!', es:'¡Domínalo!'}, time:'30–35 min', desc:{en:'Independent practice.', es:'Práctica independiente.'}, bullets:{en:['DOK 1: 1–8, 25–32','DOK 2: 51–58','DOK 3: 49–50'], es:['DOK 1: 1–8, 25–32','DOK 2: 51–58','DOK 3: 49–50']}},
+      {key:'close-it', name:{en:'Close It!', es:'¡Ciérralo!'}, time:'5–10 min', desc:{en:'Exit Ticket / BIL Mini-Assessment.', es:'Boleto de salida / Mini-evaluación BIL.'}}
+    ],
+    notes:{
+      en:'This lesson introduces undefined and defined terms. <strong>These concepts are not assessed on the Geometry EOC.</strong>',
+      es:'Esta lección introduce términos indefinidos y definidos. <strong>Estos conceptos no se evalúan en el EOC de Geometría.</strong>'
+    },
+    dok:{'DOK 1':'1–8, 25–32','DOK 2':'51–58','DOK 3':'49–50'},
+    resources:[
+      {key:'ppt', title:'BIL Lesson PowerPoint', desc:{en:'Points, Lines, and Planes', es:'Puntos, Líneas y Planos'}},
+      {key:'exit', title:'Exit Ticket (Answer Key)', desc:{en:'PM Test ID: 3869809', es:'ID de prueba PM: 3869809'}}
+    ]
+  },
+  {
+    id:'l12', tab:'1.2',
+    title:{en:'Measuring and Constructing Segments', es:'Medición y Construcción de Segmentos'},
+    dayLabel:{en:'Day 1', es:'Día 1'}, date:'08/13/2026', standards:['MA.912.GR.5.1'], prereq:null, pmTestId:null,
+    objectives:{
+      en:['Measure a line segment.','Copy a line segment.','Explain and use the Segment Addition Postulate.'],
+      es:['Medir un segmento de recta.','Copiar un segmento de recta.','Explicar y usar el Postulado de Suma de Segmentos.']
+    },
+    vocab:['Coordinate / Coordenada','Distance / Distancia','Congruent segments / Segmentos congruentes','Midpoint / Punto medio'],
+    flow:[
+      {key:'explore', name:{en:'Explore It!', es:'¡Explóralo!'}, time:'5–10 min', desc:{en:'Warm-Up focused on measuring tools and segment concepts.', es:'Calentamiento enfocado en herramientas de medición y conceptos de segmentos.'}},
+      {key:'teach-ruler', name:{en:'Teach It! — Ruler Postulate', es:'¡Enséñalo! — Postulado de la Regla'}, time:'20–25 min', desc:{en:'Example 1: Using the Ruler Postulate.', es:'Ejemplo 1: Uso del postulado de la regla.'}, bullets:{en:['Self-Assessment: 1–5'], es:['Autoevaluación: 1–5']}},
+      {key:'teach-construct', name:{en:'Teach It! — Construction', es:'¡Enséñalo! — Construcción'}, time:'incl.', desc:{en:'Construction: Copying a segment and Segment Addition Postulate.', es:'Construcción: Copiar un segmento y Postulado de Suma de Segmentos.'}, bullets:{en:['Self-Assessment: 6–8'], es:['Autoevaluación: 6–8']}},
+      {key:'own-it', name:{en:'Own It!', es:'¡Domínalo!'}, time:'30–35 min', desc:{en:'Independent practice exercises.', es:'Ejercicios de práctica independiente.'}, bullets:{en:['DOK 1: Problems 5, 6, 8, 10, 23','DOK 2: Problems 27, 28','DOK 3: Problem 35'], es:['DOK 1: Problemas 5, 6, 8, 10, 23','DOK 2: Problemas 27, 28','DOK 3: Problema 35']}},
+      {key:'close-it', name:{en:'Close It!', es:'¡Ciérralo!'}, time:'5–10 min', desc:{en:'Exit Ticket (Combined Lesson 1.1 & 1.2).', es:'Boleto de salida (Combinado Lección 1.1 y 1.2).'}}}
+    ],
+    notes:{
+      en:'MA.912.GR.5.1: Items may require describing construction steps. <strong>The Ruler Postulate and Segment Addition Postulate are NOT assessed on the EOC.</strong>',
+      es:'MA.912.GR.5.1: Los elementos pueden requerir describir pasos de construcción. <strong>El Postulado de la Regla y el Postulado de Suma de Segmentos NO se evalúan en el EOC.</strong>'
+    },
+    dok:{'DOK 1':'5, 6, 8, 10, 23','DOK 2':'27, 28','DOK 3':'35'},
+    resources:[
+      {key:'ppt', title:'BIL Lesson PowerPoint', desc:{en:'Measuring and Constructing Segments', es:'Medición y Construcción de Segmentos'}}
+    ]
+  },
+  {
+    id:'l13', tab:'1.3',
+    title:{en:'Using Midpoint and Distance Formulas', es:'Fórmulas de Punto Medio y Distancia'},
+    dayLabel:{en:'Day 2', es:'Día 2'}, date:'08/17/2026', standards:['MA.912.GR.3.1','MA.912.GR.3.3','MA.912.GR.5.2'], prereq:'MA.8.GR.1.2', pmTestId:'3869808',
+    objectives:{
+      en:['Find lengths of segments and construct a segment bisector.','Find the weighted average on a number line.','Find midpoint and distance using formulas.'],
+      es:['Calcular longitudes y construir la mediatriz de un segmento.','Calcular el promedio ponderado en una recta numérica.','Calcular el punto medio y la distancia usando fórmulas.']
+    },
+    vocab:['Midpoint / Punto medio','Segment bisector / Bisectriz de segmento','Weighted average / Promedio ponderado','Distance formula / Fórmula de distancia'],
+    flow:[
+      {key:'explore', name:{en:'Explore It!', es:'¡Explóralo!'}, time:'5–10 min', desc:{en:'Warm-Up on coordinate basics and number line distances.', es:'Calentamiento sobre coordenadas y distancias en la recta numérica.'}},
+      {key:'teach-midpoint', name:{en:'Teach It! — Midpoints & Bisectors', es:'¡Enséñalo! — Puntos Medios y Bisectrices'}, time:'25 min', desc:{en:'Examples 1 & 2: Midpoints, bisectors, and constructions.', es:'Ejemplos 1 y 2: Puntos medios, bisectrices y construcciones.'}},
+      {key:'teach-weighted', name:{en:'Teach It! — Formulas & Weighted Avg', es:'¡Enséñalo! — Fórmulas y Ponderación'}, time:'20 min', desc:{en:'Examples 3–5: Weighted average, Midpoint Formula, and Distance Formula.', es:'Ejemplos 3–5: Promedio ponderado, Fórmula de punto medio y distancia.'}},
+      {key:'own-it', name:{en:'Own It!', es:'¡Domínalo!'}, time:'30 min', desc:{en:'DOK differentiated practice.', es:'Práctica diferenciada por niveles DOK.'}},
+      {key:'close-it', name:{en:'Close It!', es:'¡Ciérralo!'}, time:'5–10 min', desc:{en:'Exit Ticket / BIL Mini-Assessment.', es:'Boleto de salida / Mini-evaluación BIL.'}}
+    ],
+    notes:{
+      en:'Covers coordinate proofs and constructions. Items may require finding a point partitioning a segment in a given ratio.',
+      es:'Cubre pruebas de coordenadas y construcciones. Los ítems pueden requerir encontrar un punto que divida un segmento en una razón dada.'
+    },
+    dok:{'DOK 1':'2, 4, 6-8, 11-40','DOK 2':'41, 42, 48, 55','DOK 3':'57'},
+    resources:[
+      {key:'ppt', title:'BIL Lesson PowerPoint', desc:{en:'Midpoint & Distance Formulas', es:'Fórmulas de Punto Medio y Distancia'}},
+      {key:'exit', title:'Exit Ticket (Answer Key)', desc:{en:'PM Test ID: 3869808', es:'ID de prueba PM: 3869808'}}
+    ]
+  },
+  {
+    id:'l14', tab:'1.4',
+    title:{en:'Perimeter and Area in the Coordinate Plane', es:'Perímetro y Área en el Plano Cartesiano'},
+    dayLabel:{en:'Day 3', es:'Día 3'}, date:'08/19/2026', standards:['MA.912.GR.3.4'], prereq:'MA.6.GR.2.2', pmTestId:'3869807',
+    objectives:{
+      en:['Find perimeters of polygons in the coordinate plane.','Find areas of polygons in the coordinate plane.','Apply concepts of population density.'],
+      es:['Calcular perímetros de polígonos en el plano cartesiano.','Calcular áreas de polígonos en el plano cartesiano.','Aplicar conceptos de densidad poblacional.']
+    },
+    vocab:['Polygon / Polígono','Perimeter / Perímetro','Area / Área','Population density / Densidad poblacional'],
+    flow:[
+      {key:'explore', name:{en:'Explore It!', es:'¡Explóralo!'}, time:'5–10 min', desc:{en:'Warm-Up activating 2D area concepts.', es:'Calentamiento activando conceptos de área 2D.'}},
+      {key:'teach-area', name:{en:'Teach It! — Perimeter, Area & Density', es:'¡Enséñalo! — Perímetro, Área y Densidad'}, time:'30 min', desc:{en:'Examples 2–4 & B.E.S.T. EOC sample item review.', es:'Ejemplos 2–4 y revisión de muestra B.E.S.T. EOC.'}},
+      {key:'own-it', name:{en:'Own It!', es:'¡Domínalo!'}, time:'30 min', desc:{en:'Problem solving with coordinate polygon geometry.', es:'Resolución de problemas con geometría de polígonos en coordenadas.'}},
+      {key:'close-it', name:{en:'Close It!', es:'¡Ciérralo!'}, time:'5–10 min', desc:{en:'Exit Ticket / BIL Mini-Assessment.', es:'Boleto de salida / Mini-evaluación BIL.'}}
+    ],
+    notes:{
+      en:'Calculations include finding perimeter/area of composite figures and applying density formulas.',
+      es:'Los cálculos incluyen encontrar perímetro/área de figuras compuestas y aplicar fórmulas de densidad.'
+    },
+    dok:{'DOK 1':'5-18','DOK 2':'20-22','DOK 3':'19, 28, 31, 33 (Density: Q23, Q25)'},
+    resources:[
+      {key:'ppt', title:'BIL Lesson PowerPoint', desc:{en:'Perimeter and Area in Coordinate Plane', es:'Perímetro y Área en Plano Cartesiano'}},
+      {key:'exit', title:'Exit Ticket (Answer Key)', desc:{en:'PM Test ID: 3869807', es:'ID de prueba PM: 3869807'}}
+    ]
+  },
+  {
+    id:'l15', tab:'1.5',
+    title:{en:'Measuring and Constructing Angles', es:'Medición y Construcción de Ángulos'},
+    dayLabel:{en:'Day 4', es:'Día 4'}, date:'08/21/2026', standards:['MA.912.GR.5.1','MA.912.GR.5.2'], prereq:'MA.8.GR.1.4', pmTestId:'3869806',
+    objectives:{
+      en:['Measure and classify angles.','Construct congruent angles and angle bisectors.','Find angle measures using Angle Addition.'],
+      es:['Medir y clasificar ángulos.','Construir ángulos congruentes y bisectrices de ángulos.','Calcular medidas de ángulos usando Suma de Ángulos.']
+    },
+    vocab:['Angle / Ángulo','Vertex / Vértice','Acute / Agudo','Right / Recto','Obtuse / Obtuso','Straight / Llano','Angle bisector / Bisectriz de ángulo'],
+    flow:[
+      {key:'explore', name:{en:'Explore It!', es:'¡Explóralo!'}, time:'5–10 min', desc:{en:'Warm-Up on angle identification.', es:'Calentamiento sobre identificación de ángulos.'}},
+      {key:'teach-angles', name:{en:'Teach It! — Measuring & Bisecting', es:'¡Enséñalo! — Medición y Bisectrices'}, time:'30 min', desc:{en:'Classifying angles, copying angles, and Angle Addition Postulate.', es:'Clasificación, copia de ángulos y Postulado de Suma de Ángulos.'}},
+      {key:'own-it', name:{en:'Own It!', es:'¡Domínalo!'}, time:'30 min', desc:{en:'Angle calculations and geometric constructions.', es:'Cálculos de ángulos y construcciones geométricas.'}},
+      {key:'close-it', name:{en:'Close It!', es:'¡Ciérralo!'}, time:'5–10 min', desc:{en:'Exit Ticket / BIL Mini-Assessment.', es:'Boleto de salida / Mini-evaluación BIL.'}}
+    ],
+    notes:{
+      en:'Focus on formal constructions using compass/straightedge and verifying using angle addition.',
+      es:'Enfoque en construcciones formales usando compás y regla, y verificación mediante suma de ángulos.'
+    },
+    dok:{'DOK 1':'2-39','DOK 2':'40, 41, 49','DOK 3':'51'},
+    resources:[
+      {key:'ppt', title:'BIL Lesson PowerPoint', desc:{en:'Measuring & Constructing Angles', es:'Medición y Construcción de Ángulos'}},
+      {key:'exit', title:'Exit Ticket (Answer Key)', desc:{en:'PM Test ID: 3869806', es:'ID de prueba PM: 3869806'}}
+    ]
+  },
+  {
+    id:'l16', tab:'1.6',
+    title:{en:'Describing Pairs of Angles', es:'Descripción de Pares de Ángulos'},
+    dayLabel:{en:'Day 5', es:'Día 5'}, date:'08/25/2026', standards:['MA.912.GR.1.1','MA.912.GR.5.1','MA.912.GR.5.2'], prereq:null, pmTestId:null,
+    objectives:{
+      en:['Identify complementary and supplementary angles.','Identify linear pairs and vertical angles.','Find angle measures in angle pairs.'],
+      es:['Identificar ángulos complementarios y suplementarios.','Identificar pares lineales y ángulos opuestos por el vértice.','Calcular medidas de ángulos en pares de ángulos.']
+    },
+    vocab:['Complementary / Complementarios','Supplementary / Suplementarios','Adjacent / Adyacentes','Linear pair / Par lineal','Vertical angles / Opuestos por el vértice'],
+    flow:[
+      {key:'explore', name:{en:'Explore It!', es:'¡Explóralo!'}, time:'5–10 min', desc:{en:'Warm-Up on angle pair identification.', es:'Calentamiento en identificación de pares de ángulos.'}},
+      {key:'teach-pairs', name:{en:'Teach It! — Angle Pair Relationships', es:'¡Enséñalo! — Relaciones de Pares de Ángulos'}, time:'30 min', desc:{en:'Examples 1–5: Complementary, Supplementary, Linear Pairs, Vertical Angles.', es:'Ejemplos 1–5: Complementarios, Suplementarios, Par Lineal, Opuestos por el Vértice.'}},
+      {key:'own-it', name:{en:'Own It!', es:'¡Domínalo!'}, time:'30 min', desc:{en:'Algebraic problems with angle pairs and informal proofs.', es:'Problemas algebraicos con pares de ángulos y pruebas informales.'}},
+      {key:'close-it', name:{en:'Close It!', es:'¡Ciérralo!'}, time:'5–10 min', desc:{en:'Exit Ticket / BIL Mini-Assessment.', es:'Boleto de salida / Mini-evaluación BIL.'}}
+    ],
+    notes:{
+      en:'Essential foundation for geometric proof and angle reasoning tested across B.E.S.T. EOC.',
+      es:'Base esencial para demostraciones geométricas y razonamiento angular evaluado en B.E.S.T. EOC.'
+    },
+    dok:{'DOK 1':'2-41','DOK 2':'43, 45, 47','DOK 3':'Advanced Reasoning / Proofs'},
+    resources:[
+      {key:'ppt', title:'BIL Lesson PowerPoint', desc:{en:'Describing Pairs of Angles', es:'Descripción de Pares de Ángulos'}}
+    ]
+  },
+  {
+    id:'review', tab:'Review',
+    title:{en:'Topic I Review', es:'Repaso del Tema I'},
+    dayLabel:{en:'Block Day 5', es:'Día 5 (Bloque)'}, date:'08/26/2026', standards:['MA.912.GR.1.1','MA.912.GR.3.1','MA.912.GR.3.3','MA.912.GR.3.4','MA.912.GR.5.1','MA.912.GR.5.2'], prereq:null, pmTestId:'Topic 1 & 2 Test',
+    objectives:{
+      en:['Review and consolidate all Topic I benchmarks.','Practice EOC calculator and reference sheet strategy.','Justify geometric reasoning through peer review.'],
+      es:['Repasar y consolidar todos los estándares del Tema I.','Practicar estrategias con calculadora y hoja de referencia EOC.','Justificar razonamiento geométrico mediante revisión entre pares.']
+    },
+    vocab:null,
+    flow:[
+      {key:'teacher-moves', name:{en:'Teacher Moves', es:'Acciones del Docente'}, time:'25 min', desc:{en:'Teacher-led practice review, tool usage, and addressing misconceptions.', es:'Revisión guiada por el docente, uso de herramientas y resolución de dudas.'}},
+      {key:'student-moves', name:{en:'Student Moves', es:'Acciones del Estudiante'}, time:'40 min', desc:{en:'Benchmark stations, collaborative EOC problems, and written justification.', es:'Estaciones de práctica, problemas estilo EOC colaborativos y justificación escrita.'}},
+      {key:'close-it', name:{en:'Close It!', es:'¡Ciérralo!'}, time:'10 min', desc:{en:'Topic 1 Reflection and Self-Assessment.', es:'Reflexión y autoevaluación del Tema 1.'}}
+    ],
+    notes:{
+      en:'Comprehensive review preparing for Topics I & II Combined Assessment.',
+      es:'Repaso integral para la evaluación combinada de los Temas I y II.'
+    },
+    dok:{'DOK 1':'Targeted Station Practice','DOK 2':'Collaborative EOC Problems','DOK 3':'Written Justification'},
+    resources:[
+      {key:'additional-practice', title:'Additional Practice', desc:{en:'Combined Topic I Review', es:'Repaso Combinado del Tema I'}}
+    ]
+  }
+];
+
+function changeLanguage(lang){
+  currentLang = lang;
+  const t = I18N[currentLang];
+  
+  document.getElementById('eyebrow').innerText = t.eyebrow;
+  document.getElementById('main-title').innerText = t.mainTitle;
+  document.getElementById('lbl-pacing').innerText = t.lblPacing;
+  document.getElementById('lbl-test').innerText = t.lblTest;
+  document.getElementById('essential-question').innerText = t.eq;
+  document.getElementById('days-chip').innerText = t.daysChip;
+  document.getElementById('general-resources-title').innerText = t.genResourcesTitle;
+  
+  const btn = document.getElementById('adminBtn');
+  btn.innerHTML = isAdmin ? t.adminBtnUnlocked : t.adminBtnLocked;
+  document.getElementById('status-footer').innerText = isAdmin ? t.statusActive : t.statusProtected;
+
+  renderAll();
+}
+
+function toggleAdmin(){
+  const t = I18N[currentLang];
+  if(isAdmin){
+    isAdmin = false;
+    document.body.classList.remove('admin-mode');
+    const btn = document.getElementById('adminBtn');
+    btn.classList.remove('active');
+    btn.innerHTML = t.adminBtnLocked;
+    document.getElementById('status-footer').innerText = t.statusProtected;
+    alert(t.exitAdmin);
+  } else {
+    const pin = prompt(t.promptPin);
+    if(pin === ADMIN_PIN){
+      isAdmin = true;
+      document.body.classList.add('admin-mode');
+      const btn = document.getElementById('adminBtn');
+      btn.classList.add('active');
+      btn.innerHTML = t.adminBtnUnlocked;
+      document.getElementById('status-footer').innerText = t.statusActive;
+    } else if(pin !== null){
+      alert(t.wrongPin);
+    }
+  }
+  renderAll();
+}
+
+function escapeHtml(s){ const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function linkBoxHtml(storageKey){
+  return `<div class="link-box" data-storage-key="${escapeHtml(storageKey)}"></div>`;
+}
+
+function renderTopicResources(){
+  const grid = document.getElementById('topic-resources');
+  if(!grid) return;
+  grid.innerHTML = TOPIC_RESOURCES.map(r => `
+    <div class="resource-card">
+      <h4>${escapeHtml(r.title)}</h4>
+      <div class="desc">${escapeHtml(r.desc[currentLang] || r.desc.en)}</div>
+      ${linkBoxHtml('topic1:general:'+r.key)}
+    </div>`).join('');
+}
+
+function renderFlowStep(lesson, step){
+  const bulletsArr = step.bullets ? (step.bullets[currentLang] || step.bullets.en) : null;
+  const bullets = bulletsArr ? `<ul>${bulletsArr.map(b=>`<li>${b}</li>`).join('')}</ul>` : '';
+  const stepDesc = step.desc ? (step.desc[currentLang] || step.desc.en) : '';
+  const desc = stepDesc ? `<p>${stepDesc}</p>` : '';
+  const stepName = step.name[currentLang] || step.name.en;
+
+  return `<div class="flow-step"><div class="flow-card">
+    <div class="flow-card-head"><h3>${escapeHtml(stepName)}</h3><span class="time-tag">${escapeHtml(step.time)}</span></div>
+    ${desc}${bullets}
+    ${linkBoxHtml('topic1:'+lesson.id+':'+step.key)}
+  </div></div>`;
+}
+
+function renderPanel(lesson){
+  const t = I18N[currentLang];
+  const standardsTags = lesson.standards.map(s=>`<span class="standard-tag">${s}</span>`).join('');
+  const objArr = lesson.objectives[currentLang] || lesson.objectives.en;
+  const objList = `<div class="objectives">${standardsTags}<ul>${objArr.map(o=>`<li>${o}</li>`).join('')}</ul></div>`;
+  
+  const vocabBlock = lesson.vocab ? `
+    <section class="block"><div class="block-head"><span class="num">·</span><h2>${t.secVocab}</h2></div>
+    <div class="vocab-grid">${lesson.vocab.map(v=>`<div class="vocab-pill">${escapeHtml(v)}</div>`).join('')}</div></section>` : '';
+  
+  const flowBlock = `<section class="block"><div class="block-head"><span class="num">·</span><h2>${t.secFlow}</h2></div>
+    <div class="flow">${lesson.flow.map(s=>renderFlowStep(lesson, s)).join('')}</div></section>`;
+  
+  const lessonNotes = lesson.notes ? (lesson.notes[currentLang] || lesson.notes.en) : '';
+  const notesBlock = lessonNotes ? `<section class="block"><div class="block-head"><span class="num">·</span><h2>${t.secNotes}</h2></div><div class="notes-box">${lessonNotes}</div></section>` : '';
+  
+  const dokBlock = lesson.dok ? `<section class="block"><div class="block-head"><span class="num">·</span><h2>${t.secDok}</h2></div>
+    <table class="dok"><tr><th>${t.dokLevel}</th><th>${t.dokProblems}</th></tr>
+    ${Object.entries(lesson.dok).map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('')}
+    </table></section>` : '';
+  
+  const resBlock = `<section class="block"><div class="block-head"><span class="num">·</span><h2>${t.secResources}</h2></div>
+    <div class="resource-grid">${lesson.resources.map(r=>`
+      <div class="resource-card"><h4>${escapeHtml(r.title)}</h4><div class="desc">${escapeHtml(r.desc[currentLang] || r.desc.en)}</div>
+      ${linkBoxHtml('topic1:'+lesson.id+':res:'+r.key)}</div>`).join('')}
+    </div></section>`;
+
+  const curDayLabel = lesson.dayLabel[currentLang] || lesson.dayLabel.en;
+  const defaultDay = curDayLabel + ' · ' + lesson.date;
+  const chips = [`<span class="day-field" data-day-key="topic1:${lesson.id}:day" data-day-default="${escapeHtml(defaultDay)}"><input type="text" value="${escapeHtml(defaultDay)}"><span class="edit-hint">✎</span></span>`];
+  if(lesson.prereq) chips.push(`<span class="meta-chip" style="background:var(--petrol-tint);color:var(--petrol-dark);border:1px solid #CFE3E4;">${t.prereqLabel} <b style="color:var(--petrol-dark)">${escapeHtml(lesson.prereq)}</b></span>`);
+  if(lesson.pmTestId) chips.push(`<span class="meta-chip" style="background:var(--petrol-tint);color:var(--petrol-dark);border:1px solid #CFE3E4;">${t.pmTestIdLabel} <b style="color:var(--petrol-dark)">${escapeHtml(lesson.pmTestId)}</b></span>`);
+
+  const lessonTitle = lesson.title[currentLang] || lesson.title.en;
+  const headingText = lesson.tab === 'Review' ? lessonTitle : `${t.lessonWord} ${lesson.tab} — ${lessonTitle}`;
+
+  return `<div class="panel" id="panel-${lesson.id}">
+    <div class="panel-title"><h2>${escapeHtml(headingText)}</h2></div>
+    <div class="meta-row" style="margin-bottom:18px;">${chips.join('')}</div>
+    ${objList}
+    ${vocabBlock}
+    ${flowBlock}
+    ${notesBlock}
+    ${dokBlock}
+    ${resBlock}
+  </div>`;
+}
+
+function initDayField(field){
+  const key = field.dataset.dayKey;
+  const input = field.querySelector('input');
+  
+  const result = store.get(key);
+  if(result && result.value){ input.value = result.value; }
+
+  function save(){
+    if(!isAdmin) return;
+    const val = input.value.trim() || field.dataset.dayDefault;
+    input.value = val;
+    store.set(key, val);
+  }
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') input.blur(); });
+
+  function resize(){ input.style.width = Math.max(60, input.value.length * 7.2) + 'px'; }
+  input.addEventListener('input', resize);
+  resize();
+}
+
+function initLinkBox(box){
+  const t = I18N[currentLang];
+  const key = box.dataset.storageKey;
+
+  let links = [];
+  const result = store.get(key);
+  if(result && result.value){ 
+    try {
+      links = JSON.parse(result.value); 
+      if(!Array.isArray(links)) links = [];
+    } catch(e) { links = []; }
+  }
+
+  function persist(){
+    store.set(key, JSON.stringify(links));
+  }
+
+  function render(){
+    const countBadge = links.length ? `<span class="link-count">${links.length}</span>` : '';
+    let html = `<div class="link-label">${t.lblAttached} ${countBadge}</div>`;
+    
+    if(links.length){
+      html += `<div class="saved-links">` + links.map((url,i)=>
+        `<div class="saved-link"><a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(url)}</a><button class="remove" type="button" data-idx="${i}">${t.btnRemove}</button></div>`
+      ).join('') + `</div>`;
+    }
+    
+    html += `<div class="attach-row"><input type="text" placeholder="${t.placeholderLink}"><button type="button">${t.btnAdd}</button></div>`;
+    box.innerHTML = html;
+
+    const btn = box.querySelector('.attach-row button');
+    const input = box.querySelector('.attach-row input');
+
+    function addLink(){
+      if(!isAdmin) return;
+      const val = input.value.trim();
+      if(!val) return;
+      let formattedUrl = val;
+      if(!/^https?:\/\//i.test(formattedUrl)){
+        formattedUrl = 'https://' + formattedUrl;
+      }
+      links.push(formattedUrl);
+      persist();
+      render();
+    }
+
+    if(btn && input){
+      btn.addEventListener('click', addLink);
+      input.addEventListener('keydown', e => { if(e.key === 'Enter') addLink(); });
+    }
+
+    box.querySelectorAll('.saved-link .remove').forEach(rmBtn => {
+      rmBtn.addEventListener('click', () => {
+        if(!isAdmin) return;
+        const idx = parseInt(rmBtn.dataset.idx, 10);
+        links.splice(idx, 1);
+        persist();
+        render();
+      });
+    });
+  }
+
+  render();
+}
+
+function renderAll(){
+  renderTopicResources();
+  const tabbar = document.getElementById('tabbar');
+  const panels = document.getElementById('panels');
+  const t = I18N[currentLang];
+  if(!tabbar || !panels) return;
+  
+  const activeTabBtn = tabbar.querySelector('.tab-btn.active');
+  const activeTargetId = activeTabBtn ? activeTabBtn.dataset.target : 'panel-' + LESSONS[0].id;
+
+  tabbar.innerHTML = LESSONS.map(l => {
+    const tabLabel = l.tab === 'Review' ? t.tabReview : l.tab;
+    return `<button class="tab-btn" data-target="panel-${l.id}">${escapeHtml(tabLabel)}</button>`;
+  }).join('');
+  
+  panels.innerHTML = LESSONS.map(renderPanel).join('');
+
+  const targetBtn = tabbar.querySelector(`[data-target="${activeTargetId}"]`) || tabbar.querySelector('.tab-btn');
+  const targetPanel = document.getElementById(activeTargetId) || panels.querySelector('.panel');
+
+  if(targetBtn && targetPanel){
+    targetBtn.classList.add('active');
+    targetPanel.classList.add('active');
+  }
+
+  tabbar.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      tabbar.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      panels.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      const target = document.getElementById(btn.dataset.target);
+      if(target){
+        target.classList.add('active');
+      }
+    });
+  });
+
+  document.querySelectorAll('.link-box').forEach(initLinkBox);
+  document.querySelectorAll('.day-field').forEach(initDayField);
+}
+
+// Ejecución directa al cargar
+window.onload = function() {
+  renderAll();
+};
+</script>
+</body>
+</html>
