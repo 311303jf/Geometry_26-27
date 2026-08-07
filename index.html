@@ -189,8 +189,8 @@ footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);font-si
 const ADMIN_PIN = "9006@";
 let isAdmin = false;
 let currentLang = 'en';
+let activeTab = 'l11';
 
-// Almacenamiento seguro en memoria
 const memoryStorage = {};
 
 const store = {
@@ -481,233 +481,208 @@ function toggleAdmin(){
     btn.classList.remove('active');
     btn.innerHTML = t.adminBtnLocked;
     document.getElementById('status-footer').innerText = t.statusProtected;
-    alert(t.exitAdmin);
+    renderAll();
   } else {
-    const pin = prompt(t.promptPin);
-    if(pin === ADMIN_PIN){
+    const pwd = prompt(t.promptPin);
+    if(pwd === ADMIN_PIN){
       isAdmin = true;
       document.body.classList.add('admin-mode');
       const btn = document.getElementById('adminBtn');
       btn.classList.add('active');
       btn.innerHTML = t.adminBtnUnlocked;
       document.getElementById('status-footer').innerText = t.statusActive;
-    } else if(pin !== null){
+      renderAll();
+    } else if(pwd !== null){
       alert(t.wrongPin);
     }
   }
-  renderAll();
-}
-
-function escapeHtml(s){ const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-
-function linkBoxHtml(storageKey){
-  return `<div class="link-box" data-storage-key="${escapeHtml(storageKey)}"></div>`;
 }
 
 function renderTopicResources(){
   const grid = document.getElementById('topic-resources');
-  if(!grid) return;
-  grid.innerHTML = TOPIC_RESOURCES.map(r => `
-    <div class="resource-card">
-      <h4>${escapeHtml(r.title)}</h4>
-      <div class="desc">${escapeHtml(r.desc[currentLang] || r.desc.en)}</div>
-      ${linkBoxHtml('topic1:general:'+r.key)}
-    </div>`).join('');
+  grid.innerHTML = TOPIC_RESOURCES.map(res => {
+    const saved = store.get('topic-res-' + res.key);
+    const links = saved ? JSON.parse(saved.value) : [];
+    return `
+      <div class="resource-card">
+        <h4>${res.title}</h4>
+        <div class="desc">${res.desc[currentLang]}</div>
+        ${renderLinkBox('topic-res-' + res.key, links)}
+      </div>
+    `;
+  }).join('');
 }
 
-function renderFlowStep(lesson, step){
-  const bulletsArr = step.bullets ? (step.bullets[currentLang] || step.bullets.en) : null;
-  const bullets = bulletsArr ? `<ul>${bulletsArr.map(b=>`<li>${b}</li>`).join('')}</ul>` : '';
-  const stepDesc = step.desc ? (step.desc[currentLang] || step.desc.en) : '';
-  const desc = stepDesc ? `<p>${stepDesc}</p>` : '';
-  const stepName = step.name[currentLang] || step.name.en;
-
-  return `<div class="flow-step"><div class="flow-card">
-    <div class="flow-card-head"><h3>${escapeHtml(stepName)}</h3><span class="time-tag">${escapeHtml(step.time)}</span></div>
-    ${desc}${bullets}
-    ${linkBoxHtml('topic1:'+lesson.id+':'+step.key)}
-  </div></div>`;
-}
-
-function renderPanel(lesson){
+function renderTabs(){
+  const container = document.getElementById('tabbar');
   const t = I18N[currentLang];
-  const standardsTags = lesson.standards.map(s=>`<span class="standard-tag">${s}</span>`).join('');
-  const objArr = lesson.objectives[currentLang] || lesson.objectives.en;
-  const objList = `<div class="objectives">${standardsTags}<ul>${objArr.map(o=>`<li>${o}</li>`).join('')}</ul></div>`;
-  
-  const vocabBlock = lesson.vocab ? `
-    <section class="block"><div class="block-head"><span class="num">·</span><h2>${t.secVocab}</h2></div>
-    <div class="vocab-grid">${lesson.vocab.map(v=>`<div class="vocab-pill">${escapeHtml(v)}</div>`).join('')}</div></section>` : '';
-  
-  const flowBlock = `<section class="block"><div class="block-head"><span class="num">·</span><h2>${t.secFlow}</h2></div>
-    <div class="flow">${lesson.flow.map(s=>renderFlowStep(lesson, s)).join('')}</div></section>`;
-  
-  const lessonNotes = lesson.notes ? (lesson.notes[currentLang] || lesson.notes.en) : '';
-  const notesBlock = lessonNotes ? `<section class="block"><div class="block-head"><span class="num">·</span><h2>${t.secNotes}</h2></div><div class="notes-box">${lessonNotes}</div></section>` : '';
-  
-  const dokBlock = lesson.dok ? `<section class="block"><div class="block-head"><span class="num">·</span><h2>${t.secDok}</h2></div>
-    <table class="dok"><tr><th>${t.dokLevel}</th><th>${t.dokProblems}</th></tr>
-    ${Object.entries(lesson.dok).map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('')}
-    </table></section>` : '';
-  
-  const resBlock = `<section class="block"><div class="block-head"><span class="num">·</span><h2>${t.secResources}</h2></div>
-    <div class="resource-grid">${lesson.resources.map(r=>`
-      <div class="resource-card"><h4>${escapeHtml(r.title)}</h4><div class="desc">${escapeHtml(r.desc[currentLang] || r.desc.en)}</div>
-      ${linkBoxHtml('topic1:'+lesson.id+':res:'+r.key)}</div>`).join('')}
-    </div></section>`;
-
-  const curDayLabel = lesson.dayLabel[currentLang] || lesson.dayLabel.en;
-  const defaultDay = curDayLabel + ' · ' + lesson.date;
-  const chips = [`<span class="day-field" data-day-key="topic1:${lesson.id}:day" data-day-default="${escapeHtml(defaultDay)}"><input type="text" value="${escapeHtml(defaultDay)}"><span class="edit-hint">✎</span></span>`];
-  if(lesson.prereq) chips.push(`<span class="meta-chip" style="background:var(--petrol-tint);color:var(--petrol-dark);border:1px solid #CFE3E4;">${t.prereqLabel} <b style="color:var(--petrol-dark)">${escapeHtml(lesson.prereq)}</b></span>`);
-  if(lesson.pmTestId) chips.push(`<span class="meta-chip" style="background:var(--petrol-tint);color:var(--petrol-dark);border:1px solid #CFE3E4;">${t.pmTestIdLabel} <b style="color:var(--petrol-dark)">${escapeHtml(lesson.pmTestId)}</b></span>`);
-
-  const lessonTitle = lesson.title[currentLang] || lesson.title.en;
-  const headingText = lesson.tab === 'Review' ? lessonTitle : `${t.lessonWord} ${lesson.tab} — ${lessonTitle}`;
-
-  return `<div class="panel" id="panel-${lesson.id}">
-    <div class="panel-title"><h2>${escapeHtml(headingText)}</h2></div>
-    <div class="meta-row" style="margin-bottom:18px;">${chips.join('')}</div>
-    ${objList}
-    ${vocabBlock}
-    ${flowBlock}
-    ${notesBlock}
-    ${dokBlock}
-    ${resBlock}
-  </div>`;
+  container.innerHTML = LESSONS.map(l => `
+    <button class="tab-btn ${l.id === activeTab ? 'active' : ''}" onclick="switchTab('${l.id}')">
+      ${l.tab === 'Review' ? t.tabReview : t.lessonWord + ' ' + l.tab}
+    </button>
+  `).join('');
 }
 
-function initDayField(field){
-  const key = field.dataset.dayKey;
-  const input = field.querySelector('input');
-  
-  const result = store.get(key);
-  if(result && result.value){ input.value = result.value; }
-
-  function save(){
-    if(!isAdmin) return;
-    const val = input.value.trim() || field.dataset.dayDefault;
-    input.value = val;
-    store.set(key, val);
-  }
-  input.addEventListener('blur', save);
-  input.addEventListener('keydown', e=>{ if(e.key==='Enter') input.blur(); });
-
-  function resize(){ input.style.width = Math.max(60, input.value.length * 7.2) + 'px'; }
-  input.addEventListener('input', resize);
-  resize();
+function switchTab(id){
+  activeTab = id;
+  renderTabs();
+  renderPanels();
 }
 
-function initLinkBox(box){
+function renderPanels(){
+  const container = document.getElementById('panels');
   const t = I18N[currentLang];
-  const key = box.dataset.storageKey;
 
-  let links = [];
-  const result = store.get(key);
-  if(result && result.value){ 
-    try {
-      links = JSON.parse(result.value); 
-      if(!Array.isArray(links)) links = [];
-    } catch(e) { links = []; }
-  }
+  container.innerHTML = LESSONS.map(l => {
+    const savedDay = store.get('day-' + l.id);
+    const currentDayVal = savedDay ? savedDay.value : (l.dayLabel[currentLang] + ' · ' + l.date);
 
-  function persist(){
-    store.set(key, JSON.stringify(links));
-  }
-
-  function render(){
-    const countBadge = links.length ? `<span class="link-count">${links.length}</span>` : '';
-    let html = `<div class="link-label">${t.lblAttached} ${countBadge}</div>`;
+    let html = `<div class="panel ${l.id === activeTab ? 'active' : ''}">`;
     
-    if(links.length){
-      html += `<div class="saved-links">` + links.map((url,i)=>
-        `<div class="saved-link"><a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(url)}</a><button class="remove" type="button" data-idx="${i}">${t.btnRemove}</button></div>`
-      ).join('') + `</div>`;
+    html += `
+      <div class="panel-title">
+        <h2>${l.tab === 'Review' ? '' : l.tab + ' '} ${l.title[currentLang]}</h2>
+        <span class="day-field">
+          📅 <input type="text" value="${currentDayVal}" onchange="saveDay('${l.id}', this.value)">
+          <span class="edit-hint">✎</span>
+        </span>
+      </div>
+      <div style="margin-bottom:16px;">
+        ${l.standards.map(s => `<span class="standard-tag">${s}</span>`).join('')}
+        ${l.prereq ? `<span class="standard-tag" style="background:#FFF3D6;color:#8A5300;">${t.prereqLabel}: ${l.prereq}</span>` : ''}
+        ${l.pmTestId ? `<span class="standard-tag" style="background:#E2F0D9;color:#276A3C;">${t.pmTestIdLabel}: ${l.pmTestId}</span>` : ''}
+      </div>
+    `;
+
+    html += `
+      <section class="block">
+        <div class="block-head"><span class="num">01</span><h2>${t.secFlow}</h2></div>
+        <div class="flow">
+          ${l.flow.map(step => `
+            <div class="flow-step">
+              <div class="flow-card">
+                <div class="flow-card-head">
+                  <h3>${step.name[currentLang]}</h3>
+                  <span class="time-tag">${step.time}</span>
+                </div>
+                <p>${step.desc[currentLang]}</p>
+                ${step.bullets ? `<ul>${step.bullets[currentLang].map(b => `<li>${b}</li>`).join('')}</ul>` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+    `;
+
+    if(l.vocab){
+      html += `
+        <section class="block">
+          <div class="block-head"><span class="num">02</span><h2>${t.secVocab}</h2></div>
+          <div class="vocab-grid">
+            ${l.vocab.map(v => `<div class="vocab-pill">${v}</div>`).join('')}
+          </div>
+        </section>
+      `;
     }
-    
-    html += `<div class="attach-row"><input type="text" placeholder="${t.placeholderLink}"><button type="button">${t.btnAdd}</button></div>`;
-    box.innerHTML = html;
 
-    const btn = box.querySelector('.attach-row button');
-    const input = box.querySelector('.attach-row input');
+    html += `
+      <section class="block">
+        <div class="block-head"><span class="num">03</span><h2>${t.secNotes}</h2></div>
+        <div class="notes-box">${l.notes[currentLang]}</div>
+      </section>
+    `;
 
-    function addLink(){
-      if(!isAdmin) return;
-      const val = input.value.trim();
-      if(!val) return;
-      let formattedUrl = val;
-      if(!/^https?:\/\//i.test(formattedUrl)){
-        formattedUrl = 'https://' + formattedUrl;
-      }
-      links.push(formattedUrl);
-      persist();
-      render();
-    }
+    html += `
+      <section class="block">
+        <div class="block-head"><span class="num">04</span><h2>${t.secDok}</h2></div>
+        <table class="dok">
+          <thead><tr><th>${t.dokLevel}</th><th>${t.dokProblems}</th></tr></thead>
+          <tbody>
+            ${Object.entries(l.dok).map(([lvl, probs]) => `<tr><td><b>${lvl}</b></td><td>${probs}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      </section>
+    `;
 
-    if(btn && input){
-      btn.addEventListener('click', addLink);
-      input.addEventListener('keydown', e => { if(e.key === 'Enter') addLink(); });
-    }
+    html += `
+      <section class="block">
+        <div class="block-head"><span class="num">05</span><h2>${t.secResources}</h2></div>
+        <div class="resource-grid">
+          ${l.resources.map(res => {
+            const savedKey = 'res-' + l.id + '-' + res.key;
+            const saved = store.get(savedKey);
+            const links = saved ? JSON.parse(saved.value) : [];
+            return `
+              <div class="resource-card">
+                <h4>${res.title}</h4>
+                <div class="desc">${res.desc[currentLang]}</div>
+                ${renderLinkBox(savedKey, links)}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </section>
+    `;
 
-    box.querySelectorAll('.saved-link .remove').forEach(rmBtn => {
-      rmBtn.addEventListener('click', () => {
-        if(!isAdmin) return;
-        const idx = parseInt(rmBtn.dataset.idx, 10);
-        links.splice(idx, 1);
-        persist();
-        render();
-      });
-    });
-  }
+    html += `</div>`;
+    return html;
+  }).join('');
+}
 
-  render();
+function renderLinkBox(storageKey, links){
+  const t = I18N[currentLang];
+  return `
+    <div class="link-box">
+      <div class="link-label">${t.lblAttached} <span class="link-count">${links.length}</span></div>
+      <div class="saved-links">
+        ${links.map((link, idx) => `
+          <div class="saved-link">
+            <a href="${link.url}" target="_blank">🔗 ${link.title || link.url}</a>
+            <button class="remove" onclick="removeLink('${storageKey}', ${idx})">${t.btnRemove}</button>
+          </div>
+        `).join('')}
+      </div>
+      <div class="attach-row">
+        <input type="text" id="input-${storageKey}" placeholder="${t.placeholderLink}">
+        <button onclick="addLink('${storageKey}')">${t.btnAdd}</button>
+      </div>
+    </div>
+  `;
+}
+
+function saveDay(lessonId, val){
+  store.set('day-' + lessonId, val);
+}
+
+function addLink(storageKey){
+  const input = document.getElementById('input-' + storageKey);
+  const url = input.value.trim();
+  if(!url) return;
+  const saved = store.get(storageKey);
+  const links = saved ? JSON.parse(saved.value) : [];
+  links.push({ url, title: url });
+  store.set(storageKey, JSON.stringify(links));
+  renderAll();
+}
+
+function removeLink(storageKey, idx){
+  const saved = store.get(storageKey);
+  if(!saved) return;
+  const links = JSON.parse(saved.value);
+  links.splice(idx, 1);
+  store.set(storageKey, JSON.stringify(links));
+  renderAll();
 }
 
 function renderAll(){
   renderTopicResources();
-  const tabbar = document.getElementById('tabbar');
-  const panels = document.getElementById('panels');
-  const t = I18N[currentLang];
-  if(!tabbar || !panels) return;
-  
-  const activeTabBtn = tabbar.querySelector('.tab-btn.active');
-  const activeTargetId = activeTabBtn ? activeTabBtn.dataset.target : 'panel-' + LESSONS[0].id;
-
-  tabbar.innerHTML = LESSONS.map(l => {
-    const tabLabel = l.tab === 'Review' ? t.tabReview : l.tab;
-    return `<button class="tab-btn" data-target="panel-${l.id}">${escapeHtml(tabLabel)}</button>`;
-  }).join('');
-  
-  panels.innerHTML = LESSONS.map(renderPanel).join('');
-
-  const targetBtn = tabbar.querySelector(`[data-target="${activeTargetId}"]`) || tabbar.querySelector('.tab-btn');
-  const targetPanel = document.getElementById(activeTargetId) || panels.querySelector('.panel');
-
-  if(targetBtn && targetPanel){
-    targetBtn.classList.add('active');
-    targetPanel.classList.add('active');
-  }
-
-  tabbar.querySelectorAll('.tab-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      tabbar.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-      panels.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-      btn.classList.add('active');
-      const target = document.getElementById(btn.dataset.target);
-      if(target){
-        target.classList.add('active');
-      }
-    });
-  });
-
-  document.querySelectorAll('.link-box').forEach(initLinkBox);
-  document.querySelectorAll('.day-field').forEach(initDayField);
+  renderTabs();
+  renderPanels();
 }
 
-// Ejecución directa al cargar
-window.onload = function() {
-  renderAll();
-};
+// Inicialización
+renderAll();
 </script>
+
 </body>
 </html>
