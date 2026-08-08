@@ -558,7 +558,11 @@ function renderPanels(){
       <section class="block">
         <div class="block-head"><span class="num">01</span><h2>${t.secFlow}</h2></div>
         <div class="flow">
-          ${l.flow.map(step => `
+          ${l.flow.map(step => {
+            const stepKey = 'flow-' + l.id + '-' + step.key;
+            const savedStep = store.get(stepKey);
+            const stepLinks = savedStep ? JSON.parse(savedStep.value) : [];
+            return `
             <div class="flow-step">
               <div class="flow-card">
                 <div class="flow-card-head">
@@ -567,9 +571,11 @@ function renderPanels(){
                 </div>
                 <p>${step.desc[currentLang]}</p>
                 ${step.bullets ? `<ul>${step.bullets[currentLang].map(b => `<li>${b}</li>`).join('')}</ul>` : ''}
+                ${renderLinkBox(stepKey, stepLinks)}
               </div>
             </div>
-          `).join('')}
+          `;
+          }).join('')}
         </div>
       </section>
     `;
