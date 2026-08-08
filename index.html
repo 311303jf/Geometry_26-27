@@ -224,6 +224,7 @@ const I18N = {
     secDok: "DOK Distribution",
     secResources: "Resources & Assessment",
     lblAttached: "Attached Resources",
+    placeholderTitle: "Resource name…",
     placeholderLink: "Paste resource link…",
     btnAdd: "Add",
     btnRemove: "remove",
@@ -255,6 +256,7 @@ const I18N = {
     secDok: "Distribución DOK",
     secResources: "Recursos y Evaluación",
     lblAttached: "Recursos Adjuntos",
+    placeholderTitle: "Nombre del recurso…",
     placeholderLink: "Pega el enlace del recurso…",
     btnAdd: "Agregar",
     btnRemove: "quitar",
@@ -649,6 +651,7 @@ function renderLinkBox(storageKey, links){
         `).join('')}
       </div>
       <div class="attach-row">
+        <input type="text" id="title-${storageKey}" placeholder="${t.placeholderTitle}" style="flex:0 1 140px;">
         <input type="text" id="input-${storageKey}" placeholder="${t.placeholderLink}">
         <button onclick="addLink('${storageKey}')">${t.btnAdd}</button>
       </div>
@@ -661,12 +664,14 @@ function saveDay(lessonId, val){
 }
 
 function addLink(storageKey){
+  const titleInput = document.getElementById('title-' + storageKey);
   const input = document.getElementById('input-' + storageKey);
   const url = input.value.trim();
+  const name = titleInput.value.trim();
   if(!url) return;
   const saved = store.get(storageKey);
   const links = saved ? JSON.parse(saved.value) : [];
-  links.push({ url, title: url });
+  links.push({ url, title: name || url });
   store.set(storageKey, JSON.stringify(links));
   renderAll();
 }
