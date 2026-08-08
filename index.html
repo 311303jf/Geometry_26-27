@@ -293,7 +293,9 @@ const I18N = {
     secFlow: "Lesson Sequence",
     secNotes: "Standard Notes",
     secDok: "DOK Distribution",
-    secResources: "Resources & Assessment",
+    secResources: "Other Resources",
+    secDailyFocus: "Daily Focus & Objectives",
+    secHomework: "Homework",
     lblAttached: "Attached Resources",
     placeholderTitle: "Resource name…",
     placeholderLink: "Paste resource link…",
@@ -329,7 +331,9 @@ const I18N = {
     secFlow: "Secuencia de la Lección",
     secNotes: "Notas del Estándar",
     secDok: "Distribución DOK",
-    secResources: "Recursos y Evaluación",
+    secResources: "Otros Recursos",
+    secDailyFocus: "Enfoque y Objetivos Diarios",
+    secHomework: "Tarea",
     lblAttached: "Recursos Adjuntos",
     placeholderTitle: "Nombre del recurso…",
     placeholderLink: "Pega el enlace del recurso…",
@@ -660,6 +664,24 @@ function switchTab(id){
   renderPanels();
 }
 
+function renderObjectivesCard(lesson, t){
+  return `
+    <div class="objectives" style="margin-bottom:12px;">
+      <div style="margin-bottom:10px;">
+        ${lesson.standards.map(s => `<span class="standard-tag">${s}</span>`).join('')}
+        ${lesson.prereq ? `<span class="standard-tag" style="background:#FFF3D6;color:#8A5300;">${t.prereqLabel}: ${lesson.prereq}</span>` : ''}
+        ${lesson.pmTestId ? `<span class="standard-tag" style="background:#E2F0D9;color:#276A3C;">${t.pmTestIdLabel}: ${lesson.pmTestId}</span>` : ''}
+      </div>
+      <h3 style="margin:0 0 8px;font-family:'Fraunces',serif;font-weight:600;font-size:15.5px;color:var(--petrol-dark);">
+        ${lesson.tab === 'Review' ? t.tabReview : lesson.tab + ' — ' + lesson.title[currentLang]}
+      </h3>
+      <ul>
+        ${lesson.objectives[currentLang].map(o => `<li>${o}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+}
+
 function renderPanels(){
   const container = document.getElementById('panels');
   const t = I18N[currentLang];
@@ -690,16 +712,30 @@ function renderPanels(){
           <span>${t.sharedDayInfo}: ${[l, ...sharedWith].map(o => `<b>${o.tab === 'Review' ? t.tabReview : t.lessonWord + ' ' + o.tab}</b> — ${o.title[currentLang]}`).join(' · ')}</span>
         </div>
       `) : ''}
-      <div style="margin-bottom:16px;">
-        ${l.standards.map(s => `<span class="standard-tag">${s}</span>`).join('')}
-        ${l.prereq ? `<span class="standard-tag" style="background:#FFF3D6;color:#8A5300;">${t.prereqLabel}: ${l.prereq}</span>` : ''}
-        ${l.pmTestId ? `<span class="standard-tag" style="background:#E2F0D9;color:#276A3C;">${t.pmTestIdLabel}: ${l.pmTestId}</span>` : ''}
-      </div>
     `;
 
     html += `
       <section class="block">
-        <div class="block-head"><span class="num">01</span><h2>${t.secFlow}</h2></div>
+        <div class="block-head"><span class="num">01</span><h2>${t.secDailyFocus}</h2></div>
+        ${renderObjectivesCard(l, t)}
+        ${sharedWith ? sharedWith.map(o => renderObjectivesCard(o, t)).join('') : ''}
+      </section>
+    `;
+
+    if(l.vocab){
+      html += `
+        <section class="block">
+          <div class="block-head"><span class="num">02</span><h2>${t.secVocab}</h2></div>
+          <div class="vocab-grid">
+            ${l.vocab.map(v => `<div class="vocab-pill">${v}</div>`).join('')}
+          </div>
+        </section>
+      `;
+    }
+
+    html += `
+      <section class="block">
+        <div class="block-head"><span class="num">03</span><h2>${t.secFlow}</h2></div>
         <div class="flow">
           ${l.flow.map(step => {
             const stepKey = 'flow-' + l.id + '-' + step.key;
@@ -723,27 +759,32 @@ function renderPanels(){
       </section>
     `;
 
-    if(l.vocab){
+    html += `
+      <section class="block">
+        <div class="block-head"><span class="num">04</span><h2>${t.secHomework}</h2></div>
+        <div class="resource-card">
+          ${(() => {
+            const hwKey = 'homework-' + l.id;
+            const savedHw = store.get(hwKey);
+            const hwLinks = savedHw ? JSON.parse(savedHw.value) : [];
+            return renderLinkBox(hwKey, hwLinks);
+          })()}
+        </div>
+      </section>
+    `;
+
+    if(isAdmin){
       html += `
         <section class="block">
-          <div class="block-head"><span class="num">02</span><h2>${t.secVocab}</h2></div>
-          <div class="vocab-grid">
-            ${l.vocab.map(v => `<div class="vocab-pill">${v}</div>`).join('')}
-          </div>
+          <div class="block-head"><span class="num">05</span><h2>${t.secNotes}</h2></div>
+          <div class="notes-box">${l.notes[currentLang]}</div>
         </section>
       `;
     }
 
     html += `
       <section class="block">
-        <div class="block-head"><span class="num">03</span><h2>${t.secNotes}</h2></div>
-        <div class="notes-box">${l.notes[currentLang]}</div>
-      </section>
-    `;
-
-    html += `
-      <section class="block">
-        <div class="block-head"><span class="num">04</span><h2>${t.secDok}</h2></div>
+        <div class="block-head"><span class="num">06</span><h2>${t.secDok}</h2></div>
         <table class="dok">
           <thead><tr><th>${t.dokLevel}</th><th>${t.dokProblems}</th></tr></thead>
           <tbody>
@@ -755,20 +796,20 @@ function renderPanels(){
 
     html += `
       <section class="block">
-        <div class="block-head"><span class="num">05</span><h2>${t.secResources}</h2></div>
-        <div class="resource-grid">
-          ${l.resources.map(res => {
-            const savedKey = 'res-' + l.id + '-' + res.key;
-            const saved = store.get(savedKey);
-            const links = saved ? JSON.parse(saved.value) : [];
-            return `
-              <div class="resource-card">
-                <h4>${res.title}</h4>
-                <div class="desc">${res.desc[currentLang]}</div>
-                ${renderLinkBox(savedKey, links)}
-              </div>
-            `;
-          }).join('')}
+        <div class="block-head"><span class="num">07</span><h2>${t.secResources}</h2></div>
+        ${isAdmin ? l.resources.filter(res => res.key === 'exit').map(res => `
+          <div class="resource-card" style="margin-bottom:12px;">
+            <h4>${res.title}</h4>
+            <div class="desc">${res.desc[currentLang]}</div>
+          </div>
+        `).join('') : ''}
+        <div class="resource-card">
+          ${(() => {
+            const orKey = 'other-res-' + l.id;
+            const savedOr = store.get(orKey);
+            const orLinks = savedOr ? JSON.parse(savedOr.value) : [];
+            return renderLinkBox(orKey, orLinks);
+          })()}
         </div>
       </section>
     `;
