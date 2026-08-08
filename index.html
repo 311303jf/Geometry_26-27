@@ -125,14 +125,14 @@ body:not(.admin-mode) .saved-link .remove{display:none;}
 .attach-row button:hover{background:var(--petrol-dark);}
 
 .day-field{
-  display:inline-flex;align-items:center;gap:6px;
+  display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;max-width:100%;
   background:var(--petrol-tint);color:var(--petrol-dark);border:1px solid #CFE3E4;
   border-radius:20px;padding:4px 6px 4px 12px;font-size:12.5px;font-family:'IBM Plex Mono',monospace;
 }
 .day-field input{
   border:none;background:transparent;color:var(--petrol-dark);font-weight:600;
   font-family:'IBM Plex Mono',monospace;font-size:12.5px;padding:3px 4px;
-  border-bottom:1px dashed transparent;min-width:60px;
+  border-bottom:1px dashed transparent;min-width:60px;max-width:100%;
 }
 body:not(.admin-mode) .day-field input{pointer-events:none;border-bottom:none;}
 body:not(.admin-mode) .day-field .edit-hint{display:none;}
@@ -156,6 +156,15 @@ body:not(.admin-mode) .day-field .edit-hint{display:none;}
 }
 .shared-day-alert-icon{font-size:14px;line-height:1.3;flex-shrink:0;}
 .shared-day-alert b{color:#6E1F17;}
+
+.shared-day-info{
+  display:flex;align-items:flex-start;gap:8px;
+  background:var(--petrol-tint);border:1px solid #CFE3E4;border-left:4px solid var(--petrol);
+  border-radius:8px;padding:10px 14px;margin:0 0 16px;
+  font-size:13px;color:var(--petrol-dark);
+}
+.shared-day-info-icon{font-size:14px;line-height:1.3;flex-shrink:0;}
+.shared-day-info b{color:var(--petrol-dark);}
 
 footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
 
@@ -297,6 +306,7 @@ const I18N = {
     tabReview: "Review",
     lessonWord: "Lesson",
     sharedDayAlert: "Also scheduled this day",
+    sharedDayInfo: "Lessons to be taught this day",
     sharedDayTooltip: "Shares this date with"
   },
   es: {
@@ -332,6 +342,7 @@ const I18N = {
     tabReview: "Repaso",
     lessonWord: "Lección",
     sharedDayAlert: "También programada este día",
+    sharedDayInfo: "Lecciones que se enseñarán este día",
     sharedDayTooltip: "Comparte esta fecha con"
   }
 };
@@ -349,7 +360,7 @@ const LESSONS = [
   {
     id:'l11', tab:'1.1',
     title:{en:'Points, Lines, and Planes', es:'Puntos, Líneas y Planos'},
-    dayLabel:{en:'Day 1', es:'Día 1'}, date:'08/13/2026', standards:['MA.912.GR.5.1'], prereq:'MA.3.GR.1.1', pmTestId:'3869809',
+    dayLabel:{en:'Block Day 1', es:'Día de Bloque 1'}, date:'08/14/2026 – 08/17/2026', standards:['MA.912.GR.5.1'], prereq:'MA.3.GR.1.1', pmTestId:'3869809',
     objectives:{
       en:['Describe a point, line, and plane.','Define and name segments and rays.','Draw intersections of lines and planes.'],
       es:['Describir un punto, una línea y un plano.','Definir y nombrar segmentos y rayos.','Dibujar intersecciones de líneas y planos.']
@@ -375,7 +386,7 @@ const LESSONS = [
   {
     id:'l12', tab:'1.2',
     title:{en:'Measuring and Constructing Segments', es:'Medición y Construcción de Segmentos'},
-    dayLabel:{en:'Day 1', es:'Día 1'}, date:'08/13/2026', standards:['MA.912.GR.5.1'], prereq:null, pmTestId:null,
+    dayLabel:{en:'Block Day 1', es:'Día de Bloque 1'}, date:'08/14/2026 – 08/17/2026', standards:['MA.912.GR.5.1'], prereq:null, pmTestId:null,
     objectives:{
       en:['Measure a line segment.','Copy a line segment.','Explain and use the Segment Addition Postulate.'],
       es:['Medir un segmento de recta.','Copiar un segmento de recta.','Explicar y usar el Postulado de Suma de Segmentos.']
@@ -664,16 +675,21 @@ function renderPanels(){
       <div class="panel-title">
         <h2>${l.tab === 'Review' ? '' : l.tab + ' '} ${l.title[currentLang]}</h2>
         <span class="day-field">
-          📅 <input type="text" value="${currentDayVal}" onchange="saveDay('${l.id}', this.value)">
+          📅 <input type="text" value="${currentDayVal}" style="width:${Math.max(currentDayVal.length + 2, 8)}ch" oninput="this.style.width=(this.value.length+2)+'ch'" onchange="saveDay('${l.id}', this.value)">
           <span class="edit-hint">✎</span>
         </span>
       </div>
-      ${sharedWith ? `
+      ${sharedWith ? (isAdmin ? `
         <div class="shared-day-alert">
           <span class="shared-day-alert-icon">⚠️</span>
           <span>${t.sharedDayAlert}: ${sharedWith.map(o => `<b>${o.tab === 'Review' ? t.tabReview : t.lessonWord + ' ' + o.tab}</b> — ${o.title[currentLang]}`).join(' · ')}</span>
         </div>
-      ` : ''}
+      ` : `
+        <div class="shared-day-info">
+          <span class="shared-day-info-icon">📚</span>
+          <span>${t.sharedDayInfo}: ${[l, ...sharedWith].map(o => `<b>${o.tab === 'Review' ? t.tabReview : t.lessonWord + ' ' + o.tab}</b> — ${o.title[currentLang]}`).join(' · ')}</span>
+        </div>
+      `) : ''}
       <div style="margin-bottom:16px;">
         ${l.standards.map(s => `<span class="standard-tag">${s}</span>`).join('')}
         ${l.prereq ? `<span class="standard-tag" style="background:#FFF3D6;color:#8A5300;">${t.prereqLabel}: ${l.prereq}</span>` : ''}
