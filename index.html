@@ -140,6 +140,23 @@ body:not(.admin-mode) .day-field .edit-hint{display:none;}
 .day-field input:focus{outline:none;border-bottom-color:var(--petrol);}
 .day-field .edit-hint{font-size:10px;color:var(--muted);}
 
+/* ---- Shared Date Signal ---- */
+.tab-btn.has-shared-date{position:relative;padding-right:24px;}
+.shared-dot{
+  position:absolute;top:5px;right:7px;color:#D64545;font-size:9px;
+  animation:pulse-dot 1.8s infinite;
+}
+@keyframes pulse-dot{0%,100%{opacity:1;}50%{opacity:0.35;}}
+
+.shared-day-alert{
+  display:flex;align-items:flex-start;gap:8px;
+  background:#FDECEA;border:1px solid #F1B4AC;border-left:4px solid #D64545;
+  border-radius:8px;padding:10px 14px;margin:0 0 16px;
+  font-size:13px;color:#8A2C22;
+}
+.shared-day-alert-icon{font-size:14px;line-height:1.3;flex-shrink:0;}
+.shared-day-alert b{color:#6E1F17;}
+
 footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
 
 /* ---- General Resources Drawer ---- */
@@ -278,7 +295,9 @@ const I18N = {
     prereqLabel: "Prerequisite",
     pmTestIdLabel: "PM Test ID",
     tabReview: "Review",
-    lessonWord: "Lesson"
+    lessonWord: "Lesson",
+    sharedDayAlert: "Also scheduled this day",
+    sharedDayTooltip: "Shares this date with"
   },
   es: {
     eyebrow: "M-DCPS · Geometría · Curso 1206310",
@@ -311,7 +330,9 @@ const I18N = {
     prereqLabel: "Prerrequisito",
     pmTestIdLabel: "ID de Prueba PM",
     tabReview: "Repaso",
-    lessonWord: "Lección"
+    lessonWord: "Lección",
+    sharedDayAlert: "También programada este día",
+    sharedDayTooltip: "Comparte esta fecha con"
   }
 };
 
@@ -379,7 +400,7 @@ const LESSONS = [
   {
     id:'l13', tab:'1.3',
     title:{en:'Using Midpoint and Distance Formulas', es:'Fórmulas de Punto Medio y Distancia'},
-    dayLabel:{en:'Day 2', es:'Día 2'}, date:'08/17/2026', standards:['MA.912.GR.3.1','MA.912.GR.3.3','MA.912.GR.5.2'], prereq:'MA.8.GR.1.2', pmTestId:'3869808',
+    dayLabel:{en:'Block Day 2', es:'Día de Bloque 2'}, date:'08/18/2026 – 08/19/2026', standards:['MA.912.GR.3.1','MA.912.GR.3.3','MA.912.GR.5.2'], prereq:'MA.8.GR.1.2', pmTestId:'3869808',
     objectives:{
       en:['Find lengths of segments and construct a segment bisector.','Find the weighted average on a number line.','Find midpoint and distance using formulas.'],
       es:['Calcular longitudes y construir la mediatriz de un segmento.','Calcular el promedio ponderado en una recta numérica.','Calcular el punto medio y la distancia usando fórmulas.']
@@ -405,7 +426,7 @@ const LESSONS = [
   {
     id:'l14', tab:'1.4',
     title:{en:'Perimeter and Area in the Coordinate Plane', es:'Perímetro y Área en el Plano Cartesiano'},
-    dayLabel:{en:'Day 3', es:'Día 3'}, date:'08/19/2026', standards:['MA.912.GR.3.4'], prereq:'MA.6.GR.2.2', pmTestId:'3869807',
+    dayLabel:{en:'Block Day 3', es:'Día de Bloque 3'}, date:'08/20/2026 – 08/21/2026', standards:['MA.912.GR.3.4'], prereq:'MA.6.GR.2.2', pmTestId:'3869807',
     objectives:{
       en:['Find perimeters of polygons in the coordinate plane.','Find areas of polygons in the coordinate plane.','Apply concepts of population density.'],
       es:['Calcular perímetros de polígonos en el plano cartesiano.','Calcular áreas de polígonos en el plano cartesiano.','Aplicar conceptos de densidad poblacional.']
@@ -430,7 +451,7 @@ const LESSONS = [
   {
     id:'l15', tab:'1.5',
     title:{en:'Measuring and Constructing Angles', es:'Medición y Construcción de Ángulos'},
-    dayLabel:{en:'Day 4', es:'Día 4'}, date:'08/21/2026', standards:['MA.912.GR.5.1','MA.912.GR.5.2'], prereq:'MA.8.GR.1.4', pmTestId:'3869806',
+    dayLabel:{en:'Block Day 4', es:'Día de Bloque 4'}, date:'08/24/2026 – 08/25/2026', standards:['MA.912.GR.5.1','MA.912.GR.5.2'], prereq:'MA.8.GR.1.4', pmTestId:'3869806',
     objectives:{
       en:['Measure and classify angles.','Construct congruent angles and angle bisectors.','Find angle measures using Angle Addition.'],
       es:['Medir y clasificar ángulos.','Construir ángulos congruentes y bisectrices de ángulos.','Calcular medidas de ángulos usando Suma de Ángulos.']
@@ -455,7 +476,7 @@ const LESSONS = [
   {
     id:'l16', tab:'1.6',
     title:{en:'Describing Pairs of Angles', es:'Descripción de Pares de Ángulos'},
-    dayLabel:{en:'Day 5', es:'Día 5'}, date:'08/25/2026', standards:['MA.912.GR.1.1','MA.912.GR.5.1','MA.912.GR.5.2'], prereq:null, pmTestId:null,
+    dayLabel:{en:'Block Day 4', es:'Día de Bloque 4'}, date:'08/24/2026 – 08/25/2026', standards:['MA.912.GR.1.1','MA.912.GR.5.1','MA.912.GR.5.2'], prereq:null, pmTestId:null,
     objectives:{
       en:['Identify complementary and supplementary angles.','Identify linear pairs and vertical angles.','Find angle measures in angle pairs.'],
       es:['Identificar ángulos complementarios y suplementarios.','Identificar pares lineales y ángulos opuestos por el vértice.','Calcular medidas de ángulos en pares de ángulos.']
@@ -479,7 +500,7 @@ const LESSONS = [
   {
     id:'review', tab:'Review',
     title:{en:'Topic I Review', es:'Repaso del Tema I'},
-    dayLabel:{en:'Block Day 5', es:'Día 5 (Bloque)'}, date:'08/26/2026', standards:['MA.912.GR.1.1','MA.912.GR.3.1','MA.912.GR.3.3','MA.912.GR.3.4','MA.912.GR.5.1','MA.912.GR.5.2'], prereq:null, pmTestId:'Topic 1 & 2 Test',
+    dayLabel:{en:'Block Day 5', es:'Día de Bloque 5'}, date:'08/26/2026', standards:['MA.912.GR.1.1','MA.912.GR.3.1','MA.912.GR.3.3','MA.912.GR.3.4','MA.912.GR.5.1','MA.912.GR.5.2'], prereq:null, pmTestId:'Topic 1 & 2 Test',
     objectives:{
       en:['Review and consolidate all Topic I benchmarks.','Practice EOC calculator and reference sheet strategy.','Justify geometric reasoning through peer review.'],
       es:['Repasar y consolidar todos los estándares del Tema I.','Practicar estrategias con calculadora y hoja de referencia EOC.','Justificar razonamiento geométrico mediante revisión entre pares.']
@@ -582,14 +603,44 @@ function renderTopicResources(){
   }).join('');
 }
 
+function getLessonDayValue(l){
+  const savedDay = store.get('day-' + l.id);
+  return savedDay ? savedDay.value : (l.dayLabel[currentLang] + ' · ' + l.date);
+}
+
+function computeSharedDateGroups(){
+  const byDate = {};
+  LESSONS.forEach(l => {
+    const val = getLessonDayValue(l).trim().toLowerCase();
+    if(!val) return;
+    if(!byDate[val]) byDate[val] = [];
+    byDate[val].push(l);
+  });
+  const sharedByLessonId = {};
+  Object.values(byDate).forEach(group => {
+    if(group.length > 1){
+      group.forEach(l => {
+        sharedByLessonId[l.id] = group.filter(other => other.id !== l.id);
+      });
+    }
+  });
+  return sharedByLessonId;
+}
+
 function renderTabs(){
   const container = document.getElementById('tabbar');
   const t = I18N[currentLang];
-  container.innerHTML = LESSONS.map(l => `
-    <button class="tab-btn ${l.id === activeTab ? 'active' : ''}" onclick="switchTab('${l.id}')">
+  const shared = computeSharedDateGroups();
+  container.innerHTML = LESSONS.map(l => {
+    const isShared = !!shared[l.id];
+    const otherTabs = isShared ? shared[l.id].map(o => o.tab === 'Review' ? t.tabReview : o.tab).join(', ') : '';
+    return `
+    <button class="tab-btn ${l.id === activeTab ? 'active' : ''} ${isShared ? 'has-shared-date' : ''}" onclick="switchTab('${l.id}')" ${isShared ? `title="${t.sharedDayTooltip}: ${otherTabs}"` : ''}>
       ${l.tab === 'Review' ? t.tabReview : t.lessonWord + ' ' + l.tab}
+      ${isShared ? '<span class="shared-dot">●</span>' : ''}
     </button>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function switchTab(id){
@@ -601,10 +652,11 @@ function switchTab(id){
 function renderPanels(){
   const container = document.getElementById('panels');
   const t = I18N[currentLang];
+  const shared = computeSharedDateGroups();
 
   container.innerHTML = LESSONS.map(l => {
-    const savedDay = store.get('day-' + l.id);
-    const currentDayVal = savedDay ? savedDay.value : (l.dayLabel[currentLang] + ' · ' + l.date);
+    const currentDayVal = getLessonDayValue(l);
+    const sharedWith = shared[l.id];
 
     let html = `<div class="panel ${l.id === activeTab ? 'active' : ''}">`;
     
@@ -616,6 +668,12 @@ function renderPanels(){
           <span class="edit-hint">✎</span>
         </span>
       </div>
+      ${sharedWith ? `
+        <div class="shared-day-alert">
+          <span class="shared-day-alert-icon">⚠️</span>
+          <span>${t.sharedDayAlert}: ${sharedWith.map(o => `<b>${o.tab === 'Review' ? t.tabReview : t.lessonWord + ' ' + o.tab}</b> — ${o.title[currentLang]}`).join(' · ')}</span>
+        </div>
+      ` : ''}
       <div style="margin-bottom:16px;">
         ${l.standards.map(s => `<span class="standard-tag">${s}</span>`).join('')}
         ${l.prereq ? `<span class="standard-tag" style="background:#FFF3D6;color:#8A5300;">${t.prereqLabel}: ${l.prereq}</span>` : ''}
